@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     testCompile("junit", "junit", "4.12")
+    compile("postgresql", "postgresql", "9.1-901-1.jdbc4")
 }
 
 configure<JavaPluginConvention> {
