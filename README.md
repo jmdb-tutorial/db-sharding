@@ -13,3 +13,11 @@ https://www.postgresql.org/docs/13/ddl-partitioning.html#DDL-PARTITIONING-DECLAR
 # Pre-requisites
 
 You will need Postgres running somewhere. On a mac an easy way to do this is to install the psotgres.app which will also give you psql on your command line which is helpful.
+
+```
+\pset pager
+
+psql -U postgres
+
+select trim(id), trim(name) from customer;
+```
