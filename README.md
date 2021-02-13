@@ -8,3 +8,8 @@ https://www.postgresql.org/docs/13/ddl-partitioning.html#DDL-PARTITIONING-DECLAR
 
 https://www.postgresql.org/docs/13/sql-createforeigntable.html
 https://www.postgresql.org/docs/13/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE
+
+
+# Pre-requisites
+
+You will need Postgres running somewhere. On a mac an easy way to do this is to install the psotgres.app which will also give you psql on your command line which is helpful.
