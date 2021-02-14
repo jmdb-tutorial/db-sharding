@@ -3,9 +3,7 @@ package jmdbtutorial.postgres.shard;
 import org.junit.Test;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.is;
@@ -17,13 +15,10 @@ public class Basic_Postgres_Connection {
     @Test
     public void can_connect() throws SQLException {
 
-        String url = "jdbc:postgresql://localhost/";
-        Properties props = new Properties();
-        props.setProperty("user", "postgres");
-        props.setProperty("password", "");
+        String url = "jdbc:postgresql://localhost/?user=postgres";
 
 
-        try (Connection conn = DriverManager.getConnection(url, props)) {
+        try (Connection conn = DriverManager.getConnection(url)) {
             if (tableExists(conn, "CUSTOMER")) {
                 executeSql(conn, "DROP TABLE CUSTOMER;");
             }
@@ -34,9 +29,9 @@ public class Basic_Postgres_Connection {
 
             ResultSet rs = executeQuery(conn, "SELECT * FROM CUSTOMER ;");
 
-            List<String> rows = readRows(rs);
-            assertThat(rows.size(), is(1));
-            printRows(rows);
+            List<String> rows = Sql.readRows(rs);
+            assertThat(rows.size(), is(3));
+            Sql.printRows(rows);
         }
 
 
@@ -47,24 +42,6 @@ public class Basic_Postgres_Connection {
         ResultSet rs = conn.prepareStatement(format("SELECT to_regclass('%s');", tableName)).executeQuery();
         rs.next();
         return rs.getString(1) != null;
-    }
-
-    private void printRows(List<String> rows) {
-        System.out.println("id \t\t\t name");
-        System.out.println("-------------------");
-        for (String row : rows) {
-            System.out.println(row);
-        }
-    }
-
-    private static List<String> readRows(ResultSet rs) throws SQLException {
-        List<String> rows = new ArrayList<>();
-        while (rs.next()) {
-            String id = rs.getString("id");
-            String name = rs.getString("name");
-            rows.add(format("%s \t %s", id, name));
-        }
-        return rows;
     }
 
     private static void executeSql(Connection conn, String sql) throws SQLException {
