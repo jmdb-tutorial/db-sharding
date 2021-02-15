@@ -29,24 +29,11 @@ public class Test_ShardingDistribution {
                 .collect(toList())
                 .forEach(inMemoryDb::insertOrder);
 
-        debugShards(inMemoryDb);
+        inMemoryDb.debug();
     }
 
-    private void debugShards(ShardedInMemoryDb inMemoryDb) {
-        for (Shard shard : inMemoryDb.getShards()) {
-            out.println(format("Shard [%d] ->", shard.shardKey));
-            for (Shop shop : shard.getShops()) {
-                out.println(format("  -> Shop [%s] -> Order Count = %d", shop.id, shop.orderCount()));
-            }
-        }
-    }
 
-    private static void distributeOrdersToShards(ShardedInMemoryDb inMemoryDb,
-                                                 List<Order> orders) {
-        for (Order order : orders) {
-            inMemoryDb.insertOrder(order);
-        }
-    }
+
 
 
     private static List<Order> generateOrders(String shopId, int numberOfOrders) {
@@ -137,6 +124,16 @@ public class Test_ShardingDistribution {
             shard.getShop(order.getShopId())
                     .addOrder(order);
         }
+
+        public void debug() {
+            for (Shard shard : getShards()) {
+                out.println(format("Shard [%d] ->", shard.shardKey));
+                for (Shop shop : shard.getShops()) {
+                    out.println(format("  -> Shop [%s] -> Order Count = %d", shop.id, shop.orderCount()));
+                }
+            }
+        }
+
 
     }
 
