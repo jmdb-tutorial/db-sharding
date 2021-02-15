@@ -33,9 +33,6 @@ public class Test_ShardingDistribution {
     }
 
 
-
-
-
     private static List<Order> generateOrders(String shopId, int numberOfOrders) {
         List<Order> orders = new ArrayList<>();
 
