@@ -11,13 +11,13 @@ import static java.lang.String.valueOf;
 import static java.lang.System.out;
 import static java.util.stream.Collectors.toList;
 
-public class Test_ShardingDIstribution {
+public class Test_ShardingDistribution {
 
 
     @Test
     public void should_distribute_based_on_hash() {
-        Map<Integer, Shard> shards = new HashMap<>();
-        final int NUM_SHARDS = 8;
+
+        ShardedInMemoryDb inMemoryDb = new ShardedInMemoryDb(8);
 
         String shopId_1 = "shop-A";
         List<Order> orders_shop_1 = generateOrders(shopId_1, 10000);
@@ -26,46 +26,30 @@ public class Test_ShardingDIstribution {
         List<Order> orders_shop_2 = generateOrders(shopId_2, 1000);
 
 
-        List<Order> allOrders = Stream.of(orders_shop_1, orders_shop_2)
+        Stream.of(orders_shop_1, orders_shop_2)
                 .flatMap(List::stream)
-                .collect(toList());
+                .collect(toList())
+                .forEach(inMemoryDb::insertOrder);
 
-        distributeOrdersToShards(shards, NUM_SHARDS, allOrders);
-
-        debugShards(shards);
+        debugShards(inMemoryDb);
     }
 
-    private void debugShards(Map<Integer, Shard> shards) {
-        for (Integer shardKey : shards.keySet()) {
-            out.println(format("Shard [%d] ->", shardKey));
-            Shard shard = shards.get(shardKey);
+    private void debugShards(ShardedInMemoryDb inMemoryDb) {
+        for (Shard shard : inMemoryDb.getShards()) {
+            out.println(format("Shard [%d] ->", shard.shardKey));
             for (Shop shop : shard.getShops()) {
                 out.println(format("  -> Shop [%s] -> Order Count = %d", shop.id, shop.orderCount()));
             }
         }
     }
 
-    private static void distributeOrdersToShards(Map<Integer, Shard> shards,
-                                                 int NUM_SHARDS,
+    private static void distributeOrdersToShards(ShardedInMemoryDb inMemoryDb,
                                                  List<Order> orders) {
         for (Order order : orders) {
-            Integer shardKey = calculateShardKey(order, NUM_SHARDS);
-            if (!shards.containsKey(shardKey)) {
-                shards.put(shardKey, new Shard(shardKey));
-            }
-            Shard shard = shards.get(shardKey);
-            if (!shard.containsShop(order.getShopId())) {
-                shard.registerShop(order.getShopId());
-            }
-            shard.getShop(order.getShopId())
-                    .addOrder(order);
+            inMemoryDb.insertOrder(order);
         }
     }
 
-    private static Integer calculateShardKey(Order order, int num_shards) {
-        int hashCode = order.hashCode();
-        return floorMod(hashCode, num_shards) + 1;
-    }
 
     private static List<Order> generateOrders(String shopId, int numberOfOrders) {
         List<Order> orders = new ArrayList<>();
@@ -117,6 +101,47 @@ public class Test_ShardingDIstribution {
         }
     }
 
+    public static class ShardedInMemoryDb {
+
+        Map<Integer, Shard> shards = new HashMap<>();
+
+        public ShardedInMemoryDb(int numberOfShards) {
+            for (int i = 0; i <= numberOfShards; i++) {
+                int shardKey = i + 1;
+                shards.put(shardKey, new Shard(shardKey));
+            }
+        }
+
+        private Integer calculateShardKey(Object shardKey) {
+            int hashCode = shardKey.hashCode();
+            return floorMod(hashCode, numberOfShards()) + 1;
+        }
+
+
+        public int numberOfShards() {
+            return shards.size();
+        }
+
+        public Shard getShard(Integer shardKey) {
+            return shards.get(shardKey);
+        }
+
+        public Collection<Shard> getShards() {
+            return shards.values();
+        }
+
+        private void insertOrder(Order order) {
+            Integer shardKey = calculateShardKey(order.shardKey);
+            Shard shard = getShard(shardKey);
+            if (!shard.containsShop(order.getShopId())) {
+                shard.registerShop(order.getShopId());
+            }
+            shard.getShop(order.getShopId())
+                    .addOrder(order);
+        }
+
+    }
+
     public static class Shard {
         Map<String, Shop> shops = new HashMap<>();
         public final Integer shardKey;
@@ -156,7 +181,7 @@ public class Test_ShardingDIstribution {
             orders.add(order);
         }
 
-        public int  orderCount() {
+        public int orderCount() {
             return orders.size();
         }
     }
