@@ -17,15 +17,13 @@ public class Test_ShardingDistribution {
     @Test
     public void should_distribute_based_on_hash() {
 
-        ShardedInMemoryDb inMemoryDb = new ShardedInMemoryDb(8);
-
         String shopId_1 = "shop-A";
         List<Order> orders_shop_1 = generateOrders(shopId_1, 10000);
 
         String shopId_2 = "shop-B";
         List<Order> orders_shop_2 = generateOrders(shopId_2, 1000);
 
-
+        ShardedInMemoryDb inMemoryDb = new ShardedInMemoryDb(8);
         Stream.of(orders_shop_1, orders_shop_2)
                 .flatMap(List::stream)
                 .collect(toList())
