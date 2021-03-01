@@ -23,6 +23,30 @@ public class Mapping_Test {
 
     }
 
+    @Test
+    public void declarative_form() {
+        ObjectA objectA = new ObjectA("foo");
+        ObjectB objectB = new ObjectB();
+
+        mapObject(objectA::getPropertyA_1, objectB::setPropertyB_1);
+
+        assertThat(objectA.propertyA_1, is(objectB.propertyB_1));
+    }
+
+    private void mapObject(PropertyAccessor<String> getter, PropertyModifier<String> setter) {
+        setter.set(getter.get());
+    }
+
+    @FunctionalInterface
+    public interface PropertyAccessor<R> {
+        public R get();
+    }
+
+    @FunctionalInterface
+    public interface PropertyModifier<V> {
+        public void set(V value);
+    }
+
     @FunctionalInterface
     public interface Mapper<S, T> {
         T map(S source);
@@ -41,17 +65,39 @@ public class Mapping_Test {
     }
 
     public static class ObjectA {
-        public final String propertyA_1;
+        public  String propertyA_1;
+
+        public ObjectA() {
+        }
 
         public ObjectA(String propertyA_1) {
+            this.propertyA_1 = propertyA_1;
+        }
+
+        public String getPropertyA_1() {
+            return propertyA_1;
+        }
+
+        public void setPropertyA_1(String propertyA_1) {
             this.propertyA_1 = propertyA_1;
         }
     }
 
     public static class ObjectB {
-        public final String propertyB_1;
+        public  String propertyB_1;
+
+        public ObjectB() {
+        }
 
         public ObjectB(String propertyB_1) {
+            this.propertyB_1 = propertyB_1;
+        }
+
+        public String getPropertyB_1() {
+            return propertyB_1;
+        }
+
+        public void setPropertyB_1(String propertyB_1) {
             this.propertyB_1 = propertyB_1;
         }
     }
