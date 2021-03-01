@@ -29,13 +29,17 @@ public class Mapping_Test {
         ObjectB objectB = new ObjectB();
 
         mapObject(objectA::getPropertyA_1, objectB::setPropertyB_1);
+        mapObject(objectA::getPropertyA_2, objectB::setPropertyB_2);
 
         assertThat(objectA.propertyA_1, is(objectB.propertyB_1));
+        assertThat(objectA.propertyA_2, is(objectB.propertyB_2));
     }
 
-    private void mapObject(PropertyAccessor<String> getter, PropertyModifier<String> setter) {
+    private <T> void mapObject(PropertyAccessor<T> getter, PropertyModifier<T> setter) {
         setter.set(getter.get());
     }
+
+
 
     @FunctionalInterface
     public interface PropertyAccessor<R> {
@@ -66,6 +70,7 @@ public class Mapping_Test {
 
     public static class ObjectA {
         public  String propertyA_1;
+        private int propertyA_2;
 
         public ObjectA() {
         }
@@ -81,10 +86,19 @@ public class Mapping_Test {
         public void setPropertyA_1(String propertyA_1) {
             this.propertyA_1 = propertyA_1;
         }
+
+        public int getPropertyA_2() {
+            return propertyA_2;
+        }
+
+        public void setPropertyA_2(int propertyA_2) {
+            this.propertyA_2 = propertyA_2;
+        }
     }
 
     public static class ObjectB {
         public  String propertyB_1;
+        public int propertyB_2;
 
         public ObjectB() {
         }
@@ -99,6 +113,14 @@ public class Mapping_Test {
 
         public void setPropertyB_1(String propertyB_1) {
             this.propertyB_1 = propertyB_1;
+        }
+
+        public int getPropertyB_2() {
+            return propertyB_2;
+        }
+
+        public void setPropertyB_2(int propertyB_2) {
+            this.propertyB_2 = propertyB_2;
         }
     }
 }
