@@ -2,9 +2,6 @@ package jmdbtutorial.postgres.shard;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.function.Function;
-
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -28,14 +25,14 @@ public class Mapping_Test {
         ObjectA objectA = new ObjectA("foo");
         ObjectB objectB = new ObjectB();
 
-        mapObject(objectA::getPropertyA_1, objectB::setPropertyB_1);
-        mapObject(objectA::getPropertyA_2, objectB::setPropertyB_2);
+        map(objectA::getPropertyA_1, objectB::setPropertyB_1);
+        map(objectA::getPropertyA_2, objectB::setPropertyB_2);
 
         assertThat(objectA.propertyA_1, is(objectB.propertyB_1));
         assertThat(objectA.propertyA_2, is(objectB.propertyB_2));
     }
 
-    private <T> void mapObject(PropertyAccessor<T> getter, PropertyModifier<T> setter) {
+    private static <T> void map(PropertyAccessor<T> getter, PropertyModifier<T> setter) {
         setter.set(getter.get());
     }
 
